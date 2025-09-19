@@ -21,4 +21,4 @@ app.use("/api/reports", require("./routes/reportRoutes"));
 app.use(errorHandler);
 
 // Start Server
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, "localhost", () => console.log(`🚀 Server running on localhost:${PORT}`));
