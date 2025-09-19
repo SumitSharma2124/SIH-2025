@@ -5,6 +5,7 @@ import { DashboardStatsSection } from "./sections/DashboardStatsSection/Dashboar
 import { IssueListSection } from "./sections/IssueListSection/IssueListSection";
 import { MapView } from "./sections/MapView/MapView";
 import { AnalyticsView } from "./sections/AnalyticsView/AnalyticsView";
+import { ApiTest } from "../../components/ApiTest";
 
 export const Dashboard = (): JSX.Element => {
   const [activeTab, setActiveTab] = React.useState("list");
@@ -14,6 +15,11 @@ export const Dashboard = (): JSX.Element => {
       <div className="p-6">
         {/* Dashboard Stats Section */}
         <DashboardStatsSection />
+
+        {/* Backend Connection Test */}
+        <div className="mt-6">
+          <ApiTest />
+        </div>
 
         {/* View Toggle Tabs */}
         <div className="mt-8 mb-8">

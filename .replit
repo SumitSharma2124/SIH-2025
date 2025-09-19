@@ -18,6 +18,10 @@ author = "agent"
 task = "workflow.run"
 args = "Dashboard"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Backend"
+
 [[workflows.workflow]]
 name = "Dashboard"
 author = "agent"
@@ -30,9 +34,25 @@ waitForPort = 5000
 [workflows.workflow.metadata]
 outputType = "webview"
 
+[[workflows.workflow]]
+name = "Backend"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend && npm ci && npm start"
+waitForPort = 3000
+
 [[ports]]
-localPort = 5000
-externalPort = 80
+localPort = 3000
+externalPort = 3000
+
+[[ports]]
+localPort = 33655
+externalPort = 3001
 
 [[ports]]
 localPort = 45315
