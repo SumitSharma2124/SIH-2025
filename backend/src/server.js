@@ -12,14 +12,25 @@ connectDB();
 
 // CORS Configuration
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? process.env.FRONTEND_URL || 'https://your-app.replit.app'
-    : [
-        'http://localhost:5000', 'http://0.0.0.0:5000', 'http://127.0.0.1:5000',
-        'http://localhost:5173', 'http://0.0.0.0:5173', 'http://127.0.0.1:5173'
-      ],
+  origin: [
+    'http://localhost:5000',
+    'http://0.0.0.0:5000',
+    'http://127.0.0.1:5000',
+    'http://localhost:5173',
+    'http://0.0.0.0:5173',
+    'http://127.0.0.1:5173',
+    'http://10.7.20.45:5000',
+    'http://10.7.20.45:5173',
+    'http://10.7.20.45',
+  ],
   credentials: true
 }));
+
+// Ensure Access-Control-Allow-Credentials header is always set
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+});
 
 // Middleware
 app.use(express.json());

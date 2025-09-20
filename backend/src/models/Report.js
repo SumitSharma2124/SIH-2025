@@ -10,6 +10,8 @@ const reportSchema = new mongoose.Schema({
     coordinates: { type: [Number], required: true }, // [lng, lat]
   },
   status: { type: String, enum: ["submitted", "acknowledged", "in-progress", "resolved"], default: "submitted" },
+  priority: { type: String, enum: ["High", "Medium", "Low"], default: "Medium" },
+  department: { type: String },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   assignedDept: { type: mongoose.Schema.Types.ObjectId, ref: "Department" }
 }, { timestamps: true });

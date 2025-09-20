@@ -1,7 +1,14 @@
+// ...existing code...
 // API configuration and client setup
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 class ApiClient {
+  async updateReport(id: string, update: any) {
+    return this.request<any>(`/reports/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(update),
+    });
+  }
   private baseURL: string;
 
   constructor(baseURL: string) {

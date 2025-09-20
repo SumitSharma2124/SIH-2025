@@ -224,7 +224,7 @@ export const Settings = (): JSX.Element => {
                       <Badge className="bg-green-100 text-green-800 mb-4">Connected</Badge>
                       <div className="flex gap-2">
                         <Button size="sm" variant="outline">Configure</Button>
-                        <Button size="sm" variant="outline">Test Connection</Button>
+                        {/* Test Connection button removed */}
                       </div>
                     </div>
                     

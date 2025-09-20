@@ -1,4 +1,7 @@
 import React, { useState, useRef } from 'react';
+import * as Location from 'expo-location';
+import { API_BASE_URL } from '../lib/api';
+import * as ImagePicker from 'expo-image-picker';
 import {
   View,
   Text,
@@ -11,7 +14,6 @@ import {
   Image,
 } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import * as ImagePicker from 'expo-image-picker';
 import {
   X,
   Camera,
@@ -42,7 +44,10 @@ export default function ReportIssueModal({
   const [permission, requestPermission] = useCameraPermissions();
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [description, setDescription] = useState('');
-  const [location, setLocation] = useState('Current Location');
+  const [location, setLocation] = useState<string>('');
+  const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
   const cameraRef = useRef<CameraView>(null);
 
   const takePicture = async () => {
@@ -101,28 +106,81 @@ export default function ReportIssueModal({
     setShowCamera(true);
   };
 
-  const submitReport = () => {
+
+  // Upload image and report data to backend, with GPS location
+  const uploadImageAndReport = async () => {
     if (!description.trim()) {
-      Alert.alert('Error', 'Please provide a description of the issue');
+      setFeedback('Please provide a description of the issue');
       return;
     }
+    setLoading(true);
+    setFeedback(null);
+    try {
+      // Get location permission and coordinates
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setFeedback('Location permission is required to submit a report.');
+        setLoading(false);
+        return;
+      }
+      let loc = await Location.getCurrentPositionAsync({});
+      setCoords({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });
+      setLocation(`Lat: ${loc.coords.latitude}, Lng: ${loc.coords.longitude}`);
 
-    // Simulate report submission
-    Alert.alert(
-      'Report Submitted',
-      'Your report has been submitted successfully. You will receive updates on its progress.',
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            setDescription('');
-            setCapturedImage(null);
-            onClose();
-          },
+      // Map frontend category titles to backend enum values
+      const categoryMap: Record<string, string> = {
+        'Pothole': 'pothole',
+        'Street Light': 'streetlight',
+        'Trash/Sanitation': 'garbage',
+        'Graffiti': 'other',
+        'Traffic Signal': 'other',
+        'Water/Drainage': 'other',
+      };
+      const backendCategory = selectedCategory?.title ? categoryMap[selectedCategory.title] || 'other' : 'other';
+
+      const formData = new FormData();
+      formData.append('description', description);
+      formData.append('category', backendCategory);
+      formData.append('title', selectedCategory?.title || 'Report');
+      formData.append('latitude', String(loc.coords.latitude));
+      formData.append('longitude', String(loc.coords.longitude));
+      if (capturedImage) {
+        // React Native FormData for image upload
+        formData.append('image', {
+          uri: capturedImage,
+          name: 'photo.jpg',
+          type: 'image/jpeg',
+        } as any);
+      }
+
+      const response = await fetch(`${API_BASE_URL}/reports`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
         },
-      ]
-    );
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit report');
+      }
+
+      setFeedback('Report submitted successfully!');
+      setDescription('');
+      setCapturedImage(null);
+      setLocation('');
+      setCoords(null);
+      setTimeout(() => {
+        setFeedback(null);
+        onClose();
+      }, 1200);
+    } catch (error) {
+      setFeedback('Failed to submit report. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
+  // removed duplicate and unused uploadImage function
 
   const toggleCameraFacing = () => {
     setFacing((current) => (current === 'back' ? 'front' : 'back'));
@@ -218,7 +276,7 @@ export default function ReportIssueModal({
             <Text style={styles.sectionTitle}>Location</Text>
             <TouchableOpacity style={styles.locationButton}>
               <MapPin color="#4285F4" size={16} />
-              <Text style={styles.locationText}>{location}</Text>
+              <Text style={styles.locationText}>{location ? location : 'Fetching location...'}</Text>
             </TouchableOpacity>
           </View>
 
@@ -258,9 +316,18 @@ export default function ReportIssueModal({
         </ScrollView>
 
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.submitButton} onPress={submitReport}>
+          {feedback && (
+            <Text style={{ textAlign: 'center', color: feedback.includes('success') ? '#10B981' : '#EF4444', marginBottom: 8 }}>
+              {feedback}
+            </Text>
+          )}
+          <TouchableOpacity
+            style={[styles.submitButton, loading && { opacity: 0.6 }]}
+            onPress={uploadImageAndReport}
+            disabled={loading}
+          >
             <Send color="#FFFFFF" size={20} />
-            <Text style={styles.submitButtonText}>Submit Report</Text>
+            <Text style={styles.submitButtonText}>{loading ? 'Submitting...' : 'Submit Report'}</Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -2,23 +2,31 @@ import React from "react";
 import { Tabs, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import { Layout } from "../../components/Layout/Layout";
 import { DashboardStatsSection } from "./sections/DashboardStatsSection/DashboardStatsSection";
-import { IssueListSection } from "./sections/IssueListSection/IssueListSection";
+import IssueListSection from "./sections/IssueListSection/IssueListSection";
 import { MapView } from "./sections/MapView/MapView";
 import { AnalyticsView } from "./sections/AnalyticsView/AnalyticsView";
-import { ApiTest } from "../../components/ApiTest";
+// import { ApiTest } from "../../components/ApiTest";
 
 export const Dashboard = (): JSX.Element => {
   const [activeTab, setActiveTab] = React.useState("list");
+  const [filters, setFilters] = React.useState({
+    type: "all",
+    priority: "all",
+    department: "all",
+    status: "all",
+    area: "all",
+    search: ""
+  });
 
   return (
     <Layout>
       <div className="p-6">
         {/* Dashboard Stats Section */}
-        <DashboardStatsSection />
+        <DashboardStatsSection filters={filters} setFilters={setFilters} />
 
         {/* Backend Connection Test */}
         <div className="mt-6">
-          <ApiTest />
+          {/* Backend Connection Test removed */}
         </div>
 
         {/* View Toggle Tabs */}
@@ -48,7 +56,7 @@ export const Dashboard = (): JSX.Element => {
         </div>
 
         {/* Content based on active tab */}
-        {activeTab === "list" && <IssueListSection />}
+        {activeTab === "list" && <IssueListSection filters={filters} />}
         {activeTab === "map" && <MapView />}
         {activeTab === "analytics" && <AnalyticsView />}
       </div>

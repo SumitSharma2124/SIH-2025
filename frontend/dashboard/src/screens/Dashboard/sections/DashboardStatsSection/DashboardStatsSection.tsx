@@ -10,15 +10,20 @@ import {
   SelectValue,
 } from "../../../../components/ui/select";
 
-export const DashboardStatsSection = (): JSX.Element => {
-  const navigate = useNavigate();
+interface DashboardStatsSectionProps {
+  filters: {
+    type: string;
+    priority: string;
+    department?: string;
+    status: string;
+    area: string;
+    search: string;
+  };
+  setFilters: (f: any) => void;
+}
 
-  const filterOptions = [
-    { label: "All Type", value: "all-type" },
-    { label: "All Priorities", value: "all-priorities" },
-    { label: "All Status", value: "all-status" },
-    { label: "All Area", value: "all-area" },
-  ];
+export const DashboardStatsSection = ({ filters, setFilters }: DashboardStatsSectionProps): JSX.Element => {
+  const navigate = useNavigate();
 
   return (
     <section className="w-full">
@@ -54,28 +59,64 @@ export const DashboardStatsSection = (): JSX.Element => {
               <Input
                 placeholder="Search Address, title..."
                 className="h-[58px] bg-white rounded-[15px] border-2 border-[#b6bcc5] [font-family:'Inter',Helvetica] font-light text-[#00000080] text-2xl px-4"
-                defaultValue=""
+                value={filters.search}
+                onChange={e => setFilters((f: any) => ({ ...f, search: e.target.value }))}
               />
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 lg:flex-1">
-              {filterOptions.map((option, index) => (
-                <Select key={option.value}>
-                  <SelectTrigger className="h-[58px] bg-white rounded-[15px] border-2 border-[#b6bcc5] [font-family:'Inter',Helvetica] font-light text-black text-2xl px-4 min-w-[140px]">
-                    <SelectValue placeholder={option.label} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="option1">Option 1</SelectItem>
-                    <SelectItem value="option2">Option 2</SelectItem>
-                    <SelectItem value="option3">Option 3</SelectItem>
-                  </SelectContent>
-                </Select>
-              ))}
+              <Select value={filters.type} onValueChange={val => setFilters((f: any) => ({ ...f, type: val }))}>
+                <SelectTrigger className="h-[58px] bg-white rounded-[15px] border-2 border-[#b6bcc5] [font-family:'Inter',Helvetica] font-light text-black text-2xl px-4 min-w-[140px]">
+                  <SelectValue placeholder="All Types" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="pothole">Pothole</SelectItem>
+                  <SelectItem value="streetlight">Streetlight</SelectItem>
+                  <SelectItem value="garbage">Garbage</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={filters.priority} onValueChange={val => setFilters((f: any) => ({ ...f, priority: val }))}>
+                <SelectTrigger className="h-[58px] bg-white rounded-[15px] border-2 border-[#b6bcc5] [font-family:'Inter',Helvetica] font-light text-black text-2xl px-4 min-w-[140px]">
+                  <SelectValue placeholder="All Priorities" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Priorities</SelectItem>
+                  <SelectItem value="High">High</SelectItem>
+                  <SelectItem value="Medium">Medium</SelectItem>
+                  <SelectItem value="Low">Low</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={filters.status} onValueChange={val => setFilters((f: any) => ({ ...f, status: val }))}>
+                <SelectTrigger className="h-[58px] bg-white rounded-[15px] border-2 border-[#b6bcc5] [font-family:'Inter',Helvetica] font-light text-black text-2xl px-4 min-w-[140px]">
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="Resolved">Resolved</SelectItem>
+                  <SelectItem value="Pending">Pending</SelectItem>
+                  <SelectItem value="In Progress">In Progress</SelectItem>
+                  <SelectItem value="submitted">Submitted</SelectItem>
+                  <SelectItem value="acknowledged">Acknowledged</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={filters.area} onValueChange={val => setFilters((f: any) => ({ ...f, area: val }))}>
+                <SelectTrigger className="h-[58px] bg-white rounded-[15px] border-2 border-[#b6bcc5] [font-family:'Inter',Helvetica] font-light text-black text-2xl px-4 min-w-[140px]">
+                  <SelectValue placeholder="All Areas" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Areas</SelectItem>
+                  {/* You can dynamically generate area options if needed */}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
           <div className="flex justify-start">
-            <Button className="bg-[#10b77f] hover:bg-[#0ea06e] text-white font-bold text-2xl h-auto py-4 px-16 rounded-[7px] min-w-[192px]">
+            <Button className="bg-[#10b77f] hover:bg-[#0ea06e] text-white font-bold text-2xl h-auto py-4 px-16 rounded-[7px] min-w-[192px]"
+              onClick={() => setFilters({ type: "all", priority: "all", department: "all", status: "all", area: "all", search: "" })}
+            >
               Reset
             </Button>
           </div>
